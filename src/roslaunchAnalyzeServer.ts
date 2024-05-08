@@ -8,13 +8,15 @@ export class RoslaunchAnalyzerServer {
     serverProcess?: ChildProcessWithoutNullStreams;
 
 
-    open(port: number = 8000) {
+    open(port: number = 8000, env: any) {
         this.port = port;
 
         this.serverProcess = spawn("roslaunch-analyze-server", [
             "--port",
             this.port.toString(),
-        ]);
+        ]
+            , { env: env }
+        );
 
         this.serverProcess.stdout.on("data", (data) => {
             console.log(`stdout: ${data}`);
