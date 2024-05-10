@@ -1,13 +1,16 @@
 import * as vscode from 'vscode';
 import { RoslaunchAnalyzerServer } from './roslaunchAnalyzeServer';
+import { VisualizerPanel } from "./panels/VisualizerPanel";
 
+import * as fs from 'fs';
+import * as path from 'path';
 let analyzer = new RoslaunchAnalyzerServer();
 let env: any;
 
-function previewHelloWorld() {
+function previewVisualizer() {
 	const panel = vscode.window.createWebviewPanel(
 		'showText',
-		'Preview HelloWorld',
+		'Preview Visualizer',
 		vscode.ViewColumn.One,
 		{
 			enableScripts: true
@@ -58,9 +61,19 @@ export function activate(context: vscode.ExtensionContext) {
 	env = rosExtension?.exports.getEnv();
 	analyzer.open(8000, env);
 	rosExtension?.exports.getEnv();
-	let disposable = vscode.commands.registerCommand('vscode-roslaunch.helloWorld', previewHelloWorld);
+	let disposable = vscode.commands.registerCommand('vscode-roslaunch.Visualizer', previewVisualizer);
 	context.subscriptions.push(disposable);
 	vscode.languages.registerDefinitionProvider('xml', new LaunchXMLDefinitionProvider());
+
+	const openInRosLaunchManager = vscode.commands.registerCommand('vscode-roslaunch.openInRosLaunchManager', async (uri: vscode.Uri) => {
+		// Open the file in an editor
+		const document = await vscode.workspace.openTextDocument(uri);
+		await vscode.window.showTextDocument(document, { viewColumn: vscode.ViewColumn.One });
+
+		VisualizerPanel.render(context.extensionUri,vscode.ViewColumn.Two);
+	  });
+	
+	context.subscriptions.push(openInRosLaunchManager);
 }
 
 // This method is called when your extension is deactivated
@@ -68,3 +81,6 @@ export function deactivate() {
 	console.log("deactivate roslaunch-analyze extension");
 	analyzer.close();
 }
+
+
+

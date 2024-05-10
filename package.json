@@ -18,8 +18,20 @@
       {
         "command": "vscode-roslaunch.helloWorld",
         "title": "ROS Launch Analyzer : Preview Hello World!!"
+      },
+      {
+        "command": "vscode-roslaunch.openInRosLaunchManager",
+        "title": "Preview in ROS Launch Manager"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "vscode-roslaunch.openInRosLaunchManager",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -34,6 +46,7 @@
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
+    "@types/d3": "^7.4.3",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
     "@types/vscode": "^1.88.0",
@@ -48,7 +61,8 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "axios": "^1.6.8"
+    "axios": "^1.6.8",
+    "d3": "^7.9.0"
   },
   "extensionDependencies": [
     "ms-iot.vscode-ros"
