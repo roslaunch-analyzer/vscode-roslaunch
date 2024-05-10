@@ -1,4 +1,4 @@
-import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
+import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn,commands} from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
 
@@ -12,6 +12,17 @@ import { getNonce } from "../utilities/getNonce";
  * - Setting the HTML (and by proxy CSS/JavaScript) content of the webview panel
  * - Setting message listeners so data can be passed between the webview and extension
  */
+
+function openFile(fileUri: string) {
+  // Correctly parse the URI
+  if (fileUri.startsWith('/file:///')) {
+      fileUri = fileUri.substring(8); // Remove 'file:///' to get the correct path
+  }
+  console.log("FILENAME:  ",fileUri)
+  const uri = Uri.file(fileUri);
+  commands.executeCommand('vscode.open', uri);
+}
+
 export class VisualizerPanel {
   public static currentPanel: VisualizerPanel | undefined;
   private readonly _panel: WebviewPanel;
@@ -23,15 +34,14 @@ export class VisualizerPanel {
    * @param panel A reference to the webview panel
    * @param extensionUri The URI of the directory containing the extension
    */
-  private constructor(panel: WebviewPanel, extensionUri: Uri) {
+  private constructor(panel: WebviewPanel, extensionUri: Uri, file_uri: Uri){
     this._panel = panel;
-
     // Set an event listener to listen for when the panel is disposed (i.e. when the user closes
     // the panel or when the panel is closed programmatically)
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
     // Set the HTML content for the webview panel
-    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri);
+    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri,file_uri);
 
     // Set an event listener to listen for messages passed from the webview context
     this._setWebviewMessageListener(this._panel.webview);
@@ -43,7 +53,7 @@ export class VisualizerPanel {
    *
    * @param extensionUri The URI of the directory containing the extension.
    */
-  public static render(extensionUri: Uri,paneltype: ViewColumn) {
+  public static render(extensionUri: Uri,paneltype: ViewColumn,file_uri: Uri) {
     if (VisualizerPanel.currentPanel) {
       // If the webview panel already exists reveal it
       VisualizerPanel.currentPanel._panel.reveal(paneltype);
@@ -53,7 +63,7 @@ export class VisualizerPanel {
         // Panel view type
         "showVisualizer",
         // Panel title
-        "Hello World",
+        "Ros Tree Visualizer",
         // The editor column the panel should be displayed in
         paneltype,
         // Extra panel configurations
@@ -64,8 +74,18 @@ export class VisualizerPanel {
           localResourceRoots: [Uri.joinPath(extensionUri, "out"), Uri.joinPath(extensionUri, "webview-ui/build")],
         }
       );
-
-      VisualizerPanel.currentPanel = new VisualizerPanel(panel, extensionUri);
+      panel.webview.onDidReceiveMessage(
+          message => {
+              switch (message.command) {
+                  case 'openFile':
+                      const uri = Uri.parse(message.uri);
+                      openFile(uri.path)
+                      break;
+              }
+          },
+          undefined,
+      );  
+      VisualizerPanel.currentPanel = new VisualizerPanel(panel, extensionUri,file_uri);
     }
   }
 
@@ -98,48 +118,52 @@ export class VisualizerPanel {
    * @returns A template string literal containing the HTML that should be
    * rendered within the webview panel
    */
-  private _getWebviewContent(webview: Webview, extensionUri: Uri) {
-    // const filePath = path.join(os.homedir(), 'Downloads', 'tree.json');
-    // const jsonData = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-    // The CSS file from the React build output
-    const stylesUri = getUri(webview, extensionUri, [
-      "webview-ui",
-      "build",
-      "static",
-      "css",
-      "main.css",
-    ]);
-    // The JS file from the React build output
-    const scriptUri = getUri(webview, extensionUri, [
-      "webview-ui",
-      "build",
-      "static",
-      "js",
-      "main.js",
-    ]);
+private _getWebviewContent(webview: Webview, extensionUri: Uri, file_uri: Uri) {
+  // Paths to CSS and JS files
+  const stylesUri = getUri(webview, extensionUri, [
+    "webview-ui",
+    "build",
+    "static",
+    "css",
+    "main.css",
+  ]);
+  const scriptUri = getUri(webview, extensionUri, [
+    "webview-ui",
+    "build",
+    "static",
+    "js",
+    "main.js",
+  ]);
 
-    const nonce = getNonce();
+  const nonce = getNonce();
 
-    // Tip: Install the es6-string-html VS Code extension to enable code highlighting below
-    return /*html*/ `
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
-          <meta name="theme-color" content="#000000">
-          <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
-          <link rel="stylesheet" type="text/css" href="${stylesUri}">
-          <title>Hello World</title>
-        </head>
-        <body>
-          <noscript>You need to enable JavaScript to run this app.</noscript>
-          <div id="root"></div>
-          <script nonce="${nonce}" src="${scriptUri}"></script>
-        </body>
-      </html>
-    `;
-  }
+  // Encode the URI for JavaScript
+  const encodedFileUri = encodeURIComponent(file_uri.toString());
+
+  return /*html*/ `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+        <meta name="theme-color" content="#000000">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+        <link rel="stylesheet" type="text/css" href="${stylesUri}">
+        <title>Ros Tree Visualizer</title>
+      </head>
+      <body>
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <div id="root"></div>
+        <script nonce="${nonce}">
+          // Setting the global variable
+          window.fileUri = "${encodedFileUri}";
+        </script>
+        <script nonce="${nonce}" src="${scriptUri}"></script>
+      </body>
+    </html>
+  `;
+}
+
 
   /**
    * Sets up an event listener to listen for messages passed from the webview context and

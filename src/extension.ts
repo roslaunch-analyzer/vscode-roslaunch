@@ -70,7 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const document = await vscode.workspace.openTextDocument(uri);
 		await vscode.window.showTextDocument(document, { viewColumn: vscode.ViewColumn.One });
 
-		VisualizerPanel.render(context.extensionUri,vscode.ViewColumn.Two);
+		VisualizerPanel.render(context.extensionUri,vscode.ViewColumn.Two,uri);
 	  });
 	
 	context.subscriptions.push(openInRosLaunchManager);
