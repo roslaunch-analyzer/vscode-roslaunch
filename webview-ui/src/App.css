@@ -4,4 +4,20 @@ main {
   justify-content: center;
   align-items: flex-start;
   height: 100%;
+  
+}
+
+.tree-container {
+  height: 100vh; /* Adjust based on your layout */
+  width: 100%;
+  overflow: auto; /* Enables scrolling */
+}
+
+.rst__node {
+  min-width: 100%;
+  white-space: nowrap;
+  position: relative;
+  text-align: left;
+  height: 12px; /* Set node height to 24px */
+  line-height: 16px; /* Center the text vertically */
 }
