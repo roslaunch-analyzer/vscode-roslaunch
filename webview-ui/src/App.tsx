@@ -18,7 +18,6 @@ interface ExtendedNodeData extends TreeItem {
 function App() {
   const [treeData, setTreeData] = useState<ExtendedNodeData[]>([]);
   const [selectedNode, setSelectedNode] = useState<ExtendedNodeData | null>(null);
-  const [searchString, setSearchString] = useState<string>('');
 
   const selectedNodeRef = useRef<HTMLSpanElement | null>(null);
 
@@ -90,28 +89,9 @@ function App() {
     }
   };
 
-  interface CustomSearchMethodParams {
-    node: ExtendedNodeData;
-    searchQuery: string | undefined;
-  }
-  
-  // Function implementation
-  const customSearchMethod = ({ node, searchQuery }: CustomSearchMethodParams): boolean =>
-    !!searchQuery && node.title.toLowerCase().includes(searchQuery.toLowerCase());
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchString(e.target.value);
-  };
-  
   return (
     <main>
       <h2>Ros2 Components</h2>
-      <input
-        type="text"
-        placeholder="search.."
-        value={searchString}
-        onChange={handleSearchChange}
-      />
       <div className="tree-container">
         <SortableTree
           treeData={treeData}
@@ -133,9 +113,6 @@ function App() {
           })}
           style={{ marginLeft: 3, fontSize: 12 }}
           canDrag={false}
-          searchMethod={customSearchMethod}
-          searchQuery={searchString}
-          searchFocusOffset={0}
         />
       </div>
     </main>
