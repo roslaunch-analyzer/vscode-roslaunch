@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import SortableTree, { TreeNode ,TreeItem} from 'react-sortable-tree';
-import 'react-sortable-tree/style.css';
+import SortableTree, { NodeData, TreeItem } from '@nosferatu500/react-sortable-tree';
+import '@nosferatu500/react-sortable-tree/style.css';
 import "./App.css";
 import tmpJsonData from './tree.json';
 import { vscode } from "./utilities/vscode";
@@ -43,8 +43,8 @@ function App() {
     setTreeData(initialData);
   }, []);
 
-  const handleNodeClick = (nodeInfo: TreeNode<ExtendedNodeData>) => {
-    const node = nodeInfo.node;
+  const handleNodeClick = (nodeInfo: NodeData) => {
+    const node = nodeInfo.node as ExtendedNodeData;
     const newData = [...treeData];
     if (selectedNode != null && selectedNode === node) {
       node.isSelected = false;
@@ -82,7 +82,7 @@ function App() {
   };
 
   const showNodeAndParents = (node: ExtendedNodeData) => {
-    let currentNode: ExtendedNodeData | undefined| null = node;
+    let currentNode: ExtendedNodeData | undefined | null = node;
     while (currentNode) {
       currentNode.expanded = true;
       currentNode = currentNode.parent;
@@ -98,21 +98,21 @@ function App() {
           onChange={setTreeData}
           generateNodeProps={(rowInfo) => ({
             onClick: (e: React.MouseEvent) => handleNodeClick(rowInfo),
-            onContextMenu: (e: React.MouseEvent) => handleRightClick(e, rowInfo.node),
+            onContextMenu: (e: React.MouseEvent) => handleRightClick(e, rowInfo.node as ExtendedNodeData),
             title: (
               <span ref={rowInfo.node === selectedNode ? selectedNodeRef : null} tabIndex={-1}>
                 {rowInfo.node.title}
               </span>
             ),
             style: {
-              color: rowInfo.node.isSelected ? 'red' : 'grey',
+              color: (rowInfo.node as ExtendedNodeData).isSelected ? 'red' : 'grey',
               border: '1px solid gray',
               margin: '2px',
               borderRadius: '8px',
-            }
+            },
+            canDrag: false
           })}
           style={{ marginLeft: 3, fontSize: 12 }}
-          canDrag={false}
         />
       </div>
     </main>
