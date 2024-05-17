@@ -1,70 +1,96 @@
 import * as vscode from 'vscode';
-import { RoslaunchAnalyzerServer } from './roslaunchAnalyzeServer';
+import {
+	LanguageClient,
+	LanguageClientOptions,
+	ServerOptions,
+	TransportKind,
+	StreamInfo
+} from 'vscode-languageclient/node';
+import * as net from 'net';
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 
-let analyzer = new RoslaunchAnalyzerServer();
-let env: any;
+let proc: ChildProcessWithoutNullStreams;
+let languageClient: LanguageClient | undefined = undefined;
 
-function previewHelloWorld() {
-	const panel = vscode.window.createWebviewPanel(
-		'showText',
-		'Preview HelloWorld',
-		vscode.ViewColumn.One,
-		{
-			enableScripts: true
-		}
-	);
-	let text: string = "";
-	analyzer.client?.get("/hello_world").then((response) => {
-		text = response.data;
-		console.log(text);
-		panel.webview.html = `
-		<html>
-		<body>
-			<h1>Preview</h1>
-			<p>${text}</p>
-		</body>
-		</html>`;
-	}
-	);
-}
+export async function activate(context: vscode.ExtensionContext) {
+	console.log("Hello extension");
 
-class LaunchXMLDefinitionProvider {
-	provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.ProviderResult<vscode.Definition> {
-		const includeFileWordRange = document.getWordRangeAtPosition(position, /"\$\(find-pkg-share\s+[^)]+\)[^"]*"/g);
-		if (!includeFileWordRange) {
-			return;
-		}
-		const includeFile = document.getText(includeFileWordRange);
-		const match = includeFile.match(/\$\(find-pkg-share\s+([^)]+)\)(\/[^"]*)/);
-		const packageName = match ? match[1] : "";
-		const extraPath = match ? match[2] : "";
-		console.log(packageName);
-		console.log(extraPath);
-
-		const URI = packageName + "/" + encodeURIComponent(extraPath);
-		return analyzer.client?.get("/get_definition_of_file/" + URI).then((response) => {
-			console.log(response.data);
-			return new vscode.Location(vscode.Uri.file(response.data.file_path), new vscode.Position(0, 0));
-		});
-	}
-}
-
-
-
-
-export function activate(context: vscode.ExtensionContext) {
-	// get env from ros extension
 	let rosExtension = vscode.extensions.getExtension("ms-iot.vscode-ros");
-	env = rosExtension?.exports.getEnv();
-	analyzer.open(8000, env);
-	rosExtension?.exports.getEnv();
-	let disposable = vscode.commands.registerCommand('vscode-roslaunch.helloWorld', previewHelloWorld);
-	context.subscriptions.push(disposable);
-	vscode.languages.registerDefinitionProvider('xml', new LaunchXMLDefinitionProvider());
+	if (!rosExtension) {
+		vscode.window.showErrorMessage("ROS extension not found");
+		return;
+	}
+	let env = rosExtension.exports.getEnv();
+
+	const connectionInfo = {
+		port: 8080,
+		host: "localhost"
+	};
+
+	proc = spawn("roslaunch-language-server", ["--port", "8080"], {
+		env: env
+	});
+	
+	proc.stdout.on("data", (data) => {
+		console.log(`stdout: ${data}`);
+	});
+	proc.stderr.on("data", (data) => {
+		console.error(`stderr: ${data}`);
+	});
+	proc.on("close", (code) => {
+		console.log(`child process exited with code ${code}`);
+	});
+
+	await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for 2 seconds to ensure the server has time to start
+
+	let serverOptions = () => {
+		return new Promise<StreamInfo>((resolve, reject) => {
+			let socket = net.connect(connectionInfo, () => {
+				console.log("Connected to server");
+				resolve({
+					writer: socket,
+					reader: socket
+				});
+			}).on('error', (err) => {
+				console.error(`Could not connect to server: ${err.message}`);
+				reject(err);
+			});
+		});
+	};
+
+	let client = new LanguageClient(
+		"Roslaunch Language Server",
+		"roslaunch-language-server",
+		serverOptions,
+		{
+			documentSelector: [
+				{ scheme: 'file', language: 'xml' }
+			]
+		}
+	);
+
+	console.log("activate roslaunch-analyze extension");
+	client.start().then(() => {
+		console.log("Client has started");
+	}, (err) => {
+		console.error(`Client failed to start: ${err.message}`);
+	});
+
+	client.sendRequest("hello_world", { hello: "world" }).then((response) => {
+		console.log("hello");
+		console.log(response);
+	});
+
+	context.subscriptions.push(client);
+
+	console.log("Client Activated");
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {
+export async function deactivate() {
 	console.log("deactivate roslaunch-analyze extension");
-	analyzer.close();
+	if (!languageClient) {
+		return undefined;
+	}
+	proc.kill();
+	return languageClient.stop();
 }
