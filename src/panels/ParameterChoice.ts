@@ -18,7 +18,7 @@ export function getChangedParameters(original: LaunchFileParameters, updated: an
 }
 
 // webviewContent.js
-export function getWebviewContent(parameters:LaunchFileParameters) {
+export function getWebviewContent(parameters: LaunchFileParameters) {
     const rows = Object.entries(parameters).map(([key, { default: defaultValue, description }]) => `
         <tr>
             <td>${key}</td>
@@ -85,10 +85,9 @@ export function getWebviewContent(parameters:LaunchFileParameters) {
                     position: fixed;
                     bottom: 20px;
                     right: 20px;
-                    background-color: #388e3c;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
                 }
                 button {
                     padding: 10px 20px;
@@ -98,6 +97,7 @@ export function getWebviewContent(parameters:LaunchFileParameters) {
                     border-radius: 4px;
                     font-size: 1em;
                     cursor: pointer;
+                    margin-bottom: 10px;
                 }
                 button:hover {
                     background-color: #45a049;
@@ -108,6 +108,26 @@ export function getWebviewContent(parameters:LaunchFileParameters) {
                 h1 {
                     color: #81c784;
                     font-size: 1.5em;
+                }
+                #status-message, #error-message {
+                    display: none;
+                    padding: 10px;
+                    border-radius: 4px;
+                    margin-top: 10px;
+                }
+                #status-message {
+                    background-color: #333;
+                    color: white;
+                    animation: flash-border 2s infinite;
+                }
+                #error-message {
+                    background-color: #d32f2f;
+                    color: white;
+                }
+                @keyframes flash-border {
+                    0% { border: 2px solid blue; }
+                    50% { border: 2px solid transparent; }
+                    100% { border: 2px solid blue; }
                 }
             </style>
         </head>
@@ -126,6 +146,8 @@ export function getWebviewContent(parameters:LaunchFileParameters) {
             </table>
             <div id="submit-container">
                 <button id="submit">OK</button>
+                <div id="status-message">Wait, tree is being built...</div>
+                <div id="error-message"></div>
             </div>
             <script>
                 const vscode = acquireVsCodeApi();
@@ -143,12 +165,34 @@ export function getWebviewContent(parameters:LaunchFileParameters) {
                         }
                     });
                     if (allFilled) {
+                        const submitButton = document.getElementById('submit');
+                        const statusMessage = document.getElementById('status-message');
+                        const errorMessage = document.getElementById('error-message');
+                        
+                        submitButton.disabled = true;
+                        statusMessage.style.display = 'block';
+                        errorMessage.style.display = 'none';
+                        
                         vscode.postMessage({
                             command: 'updateParameters',
                             parameters
                         });
                     } else {
                         alert('Please fill all the fields.');
+                    }
+                });
+
+                window.addEventListener('message', event => {
+                    const message = event.data;
+                    if (message.command === 'error') {
+                        const submitButton = document.getElementById('submit');
+                        const statusMessage = document.getElementById('status-message');
+                        const errorMessage = document.getElementById('error-message');
+
+                        submitButton.disabled = false;
+                        statusMessage.style.display = 'none';
+                        errorMessage.style.display = 'block';
+                        errorMessage.textContent = message.error;
                     }
                 });
             </script>

@@ -9,7 +9,6 @@ import {
 import * as net from 'net';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { VisualizerPanel } from "./panels/VisualizerPanel";
-import jsonResponse from "./tree.json";
 import {getWebviewContent,LaunchFileParameters,getChangedParameters} from "./panels/ParameterChoice";
 let proc: ChildProcessWithoutNullStreams;
 let languageClient: LanguageClient | undefined = undefined;
@@ -26,7 +25,7 @@ export async function activate(context: vscode.ExtensionContext) {
     let env = rosExtension.exports.getEnv();
 
     const connectionInfo = {
-        port: 8083,
+        port: 8080,
         host: "localhost"
     };
     
@@ -111,60 +110,35 @@ export async function activate(context: vscode.ExtensionContext) {
                     switch (message.command) {
                         case 'updateParameters':
                             const updatedParameters = message.parameters;
-                            const upd_result = getChangedParameters(parameters,updatedParameters)
+                            const upd_result = getChangedParameters(parameters, updatedParameters);
                             const sendParams = {
                                 colcon_path: env["COLCON_PREFIX_PATH"],
                                 filepath: uri.path,
                                 arguments: upd_result
-                            }
+                            };
                             console.log("Updated parameters:", sendParams);
                             client.sendRequest("parse_launch_file", sendParams).then((treeJson) => {
                                 panel.dispose();
-		                        VisualizerPanel.render(context.extensionUri,vscode.ViewColumn.Two,treeJson);
+                                VisualizerPanel.render(context.extensionUri, vscode.ViewColumn.Two, treeJson);
                             }).catch((error) => {
                                 console.error("Error analyzing launch file:", error);
+                                panel.webview.postMessage({
+                                    command: 'error',
+                                    error: error.message
+                                });
                             });
                             return;
                     }
                 },
                 undefined,
                 context.subscriptions
-            );
+            );            
         }).catch((error) => {
             console.error("Error analyzing launch file:", error);
         });
     });
 
     context.subscriptions.push(openInRosLaunchManager);
-}
-
-function showEditPanel(context: vscode.ExtensionContext, parameters: LaunchFileParameters) {
-    const panel = vscode.window.createWebviewPanel(
-        'editLaunchParameters',
-        'Edit Launch Parameters',
-        vscode.ViewColumn.Two,
-        {
-            enableScripts: true,
-            retainContextWhenHidden: true
-        }
-    );
-
-    panel.webview.html = getWebviewContent(parameters);
-
-    panel.webview.onDidReceiveMessage(
-        message => {
-            switch (message.command) {
-                case 'updateParameters':
-                    const updatedParameters = message.parameters;
-                    const sendParams = getChangedParameters(parameters,updatedParameters);
-                    console.log("Updated parameters:", sendParams);
-                    panel.dispose();
-                    return;
-            }
-        },
-        undefined,
-        context.subscriptions
-    );
 }
 
 export function deactivate() {
