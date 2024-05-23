@@ -18,8 +18,20 @@
       {
         "command": "vscode-roslaunch.helloWorld",
         "title": "ROS Launch Analyzer : Preview Hello World!!"
+      },
+      {
+        "command": "vscode-roslaunch.openInRosLaunchManager",
+        "title": "Preview in ROS Launch Manager"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "vscode-roslaunch.openInRosLaunchManager",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
