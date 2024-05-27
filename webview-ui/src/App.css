@@ -1,0 +1,53 @@
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+  
+}
+
+.tree-container {
+  height: 2160px; /* Adjust based on your layout */
+  width: 3840px;
+  overflow: auto; /* Enables scrolling */
+}
+
+.rst__node {
+  min-width: 100%;
+  white-space: nowrap;
+  position: relative;
+  text-align: left;
+  height: 12px; /* Set node height to 24px */
+  line-height: 16px; /* Center the text vertically */
+}
+.rst__lineChildren {
+  width: 32px; /* Increase line width */
+  border-radius: 5px; /* Rounded corners for lines */
+}
+
+input[type="text"] {
+  width: 100%; /* Adjust width as needed */
+  max-width: 400px; /* Constrain max width */
+  padding: 10px 15px;
+  margin: 10px 0;
+  font-size: 16px;
+  color: #333; /* Text color */
+  background-color: #f1f1f1; /* Background color */
+  border: 2px solid #ccc;
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  outline: none;
+  transition: all 0.3s ease; /* Smooth hover/focus effects */
+}
+
+input[type="text"]:focus {
+  border-color: #3498db; /* Highlight color */
+  background-color: #fff; /* Brighter background */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+input[type="text"]::placeholder {
+  color: #888; /* Placeholder text color */
+  font-style: italic;
+}
