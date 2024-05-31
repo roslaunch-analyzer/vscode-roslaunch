@@ -9,10 +9,10 @@ import {
 import * as net from 'net';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { VisualizerPanel } from "./panels/VisualizerPanel";
-import {getWebviewContent,LaunchFileParameters,getChangedParameters} from "./panels/ParameterChoice";
+import { getWebviewContent, LaunchFileParameters, getChangedParameters } from "./panels/ParameterChoice";
 let proc: ChildProcessWithoutNullStreams;
 let languageClient: LanguageClient | undefined = undefined;
-
+let parameterCache: Map<string, [string, string][]> = new Map();
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log("Hello extension");
@@ -23,6 +23,15 @@ export async function activate(context: vscode.ExtensionContext) {
         return;
     }
     let env = rosExtension.exports.getEnv();
+
+    // Load parameterCache from local storage
+    const storedCache = context.workspaceState.get<string>('parameterCache');
+    if (storedCache) {
+        parameterCache = new Map(JSON.parse(storedCache));
+        console.log("Parameter cache loaded from local storage.");
+    } else {
+        console.log("No parameter cache found in local storage.");
+    }
 
     const connectionInfo = {
         port: 8080,
@@ -90,9 +99,21 @@ export async function activate(context: vscode.ExtensionContext) {
         const document = await vscode.workspace.openTextDocument(uri);
         await vscode.window.showTextDocument(document, { viewColumn: vscode.ViewColumn.One });
         
-        const params = { filepath: uri.path};
+        const params = { filepath: uri.path };
         await client.sendRequest<LaunchFileParameters>("get_launch_file_parameters", params).then((parameters) => {
             console.log("Launch file analysis:", parameters);
+            
+            const showParams = JSON.parse(JSON.stringify(parameters))
+            // Apply cached parameters if available
+            const cachedParameters = parameterCache.get(uri.path);
+            if (cachedParameters) {
+                cachedParameters.forEach(([key, val]) => {
+                    if (showParams[key]) {
+                        showParams[key].default = val;
+                    }
+                });
+            }
+            
             const panel = vscode.window.createWebviewPanel(
                 'editLaunchParameters',
                 'Edit Launch Parameters',
@@ -103,7 +124,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
             );
         
-            panel.webview.html = getWebviewContent(parameters);
+            panel.webview.html = getWebviewContent(showParams);
         
             panel.webview.onDidReceiveMessage(
                 message => {
@@ -111,6 +132,16 @@ export async function activate(context: vscode.ExtensionContext) {
                         case 'updateParameters':
                             const updatedParameters = message.parameters;
                             const upd_result = getChangedParameters(parameters, updatedParameters);
+
+                            parameterCache.set(uri.path, upd_result);
+
+                            // Save parameterCache to local storage
+                            context.workspaceState.update('parameterCache', JSON.stringify(Array.from(parameterCache.entries()))).then(() => {
+                                console.log("Parameter cache saved to local storage.");
+                            }, (error) => {
+                                console.error("Error saving parameter cache to local storage:", error);
+                            });
+
                             const sendParams = {
                                 colcon_path: env["COLCON_PREFIX_PATH"],
                                 filepath: uri.path,

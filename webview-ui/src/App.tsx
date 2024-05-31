@@ -2,11 +2,12 @@ import { useEffect, useState, useRef } from 'react';
 import SortableTree, { NodeData, TreeItem } from '@nosferatu500/react-sortable-tree';
 import '@nosferatu500/react-sortable-tree/style.css';
 import "./App.css";
-import { vscode,getJsonData } from "./utilities/vscode";
+import { vscode, getJsonData } from "./utilities/vscode";
 
 interface ExtendedNodeData extends TreeItem {
   title: string;
   path?: string;
+  type?: string;
   children?: ExtendedNodeData[];
   parent?: ExtendedNodeData | null;
   expanded?: boolean;
@@ -17,6 +18,7 @@ interface ExtendedNodeData extends TreeItem {
 function App() {
   const [treeData, setTreeData] = useState<ExtendedNodeData[]>([]);
   const [selectedNode, setSelectedNode] = useState<ExtendedNodeData | null>(null);
+  const [showNodes, setShowNodes] = useState(true);
 
   const selectedNodeRef = useRef<HTMLSpanElement | null>(null);
 
@@ -25,6 +27,7 @@ function App() {
       const newNode: ExtendedNodeData = {
         title: node.title,
         path: node.path || '',
+        type: node.type || "IncludeLaunchDescription",
         children: [],
         expanded: true,
         parent: parentNode,
@@ -38,10 +41,26 @@ function App() {
   };
 
   useEffect(() => {
-    const tmpJsonData = getJsonData()
+    const tmpJsonData = getJsonData();
     const initialData = parseTreeData([tmpJsonData]); // Ensure it's an array
     setTreeData(initialData);
   }, []);
+
+  useEffect(() => {
+    const tmpJsonData = getJsonData();
+    const initialData = parseTreeData([tmpJsonData]); // Ensure it's an array
+    const filteredData = showNodes ? initialData : filterNodes(initialData);
+    setTreeData(filteredData);
+  }, [showNodes]);
+
+  const filterNodes = (nodes: ExtendedNodeData[]): ExtendedNodeData[] => {
+    return nodes
+      .filter(node => node.type !== "Node")
+      .map(node => ({
+        ...node,
+        children: node.children ? filterNodes(node.children) : []
+      }));
+  };
 
   const handleNodeClick = (nodeInfo: NodeData) => {
     const node = nodeInfo.node as ExtendedNodeData;
@@ -55,9 +74,7 @@ function App() {
       setSelectedNode(node);
       showNodeAndParents(node);
       node.isSelected = true;
-      if (selectedNodeRef.current) {
-        selectedNodeRef.current.focus();
-      }
+      window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to the top of the page
     }
     setTreeData(newData);
   };
@@ -92,6 +109,14 @@ function App() {
   return (
     <main>
       <h2>Ros2 Components</h2>
+      <label>
+        <input
+          type="checkbox"
+          checked={showNodes}
+          onChange={(e) => setShowNodes(e.target.checked)}
+        />
+        Show Nodes
+      </label>
       <div className="tree-container">
         <SortableTree
           treeData={treeData}
@@ -106,10 +131,11 @@ function App() {
             ),
             style: {
               color: (rowInfo.node as ExtendedNodeData).isSelected ? 'red' : 'grey',
-              border: '1px solid gray',
+              border:'1px solid grey',
               margin: '2px',
               borderRadius: '8px',
             },
+            className: (rowInfo.node as ExtendedNodeData).type === 'Node' ? 'reddish-node': 'grey-node',
             canDrag: false
           })}
           style={{ marginLeft: 3, fontSize: 12 }}

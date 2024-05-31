@@ -8,19 +8,10 @@ main {
 }
 
 .tree-container {
-  height: 2160px; /* Adjust based on your layout */
-  width: 3840px;
-  overflow: auto; /* Enables scrolling */
+  height: 11600px; /* Adjust based on your layout */
+  width: 2048px;
 }
 
-.rst__node {
-  min-width: 100%;
-  white-space: nowrap;
-  position: relative;
-  text-align: left;
-  height: 12px; /* Set node height to 24px */
-  line-height: 16px; /* Center the text vertically */
-}
 .rst__lineChildren {
   width: 32px; /* Increase line width */
   border-radius: 5px; /* Rounded corners for lines */
@@ -50,4 +41,11 @@ input[type="text"]:focus {
 input[type="text"]::placeholder {
   color: #888; /* Placeholder text color */
   font-style: italic;
+}
+.grey-node .rst__rowContents {
+  background-color: rgb(246, 240, 240);
+}
+
+.reddish-node .rst__rowContents {
+  background-color: rgb(237, 197, 237);
 }
