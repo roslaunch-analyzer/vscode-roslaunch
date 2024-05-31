@@ -18,9 +18,8 @@ function openFile(fileUri: string) {
   if (fileUri.startsWith('/file:///')) {
       fileUri = fileUri.substring(8); // Remove 'file:///' to get the correct path
   }
-  console.log("FILENAME:  ",fileUri)
   const uri = Uri.file(fileUri);
-  commands.executeCommand('vscode.open', uri);
+  commands.executeCommand('vscode.open', uri,ViewColumn.One);
 }
 
 export class VisualizerPanel {
@@ -139,13 +138,12 @@ private _getWebviewContent(webview: Webview, extensionUri: Uri, jsonResponse: an
 
   const nonce = getNonce();
   const json_string = JSON.stringify(jsonResponse).replace(/'/g, "\\'").replace(/"/g, '\\"');
-  console.log("json_string: "+json_string);
   return /*html*/ `
     <!DOCTYPE html>
     <html lang="en">
       <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+        <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=yes">
         <meta name="theme-color" content="#000000">
         <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
         <link rel="stylesheet" type="text/css" href="${stylesUri}">
