@@ -1,21 +1,20 @@
 <div align="center"><img src="icon.webp" height=200/></div>
 <h1 align="center">🚀 vscode-roslaunch 🚀</h1>
 
-VSCode Extesnion for [roslaunch-analyze-server](https://github.com/roslaunch-analyzer/roslaunch-analyze-server). This extension helps developers to understand the structure of their ROS launch files.
+This is the code repository for the vscode-roslaunch extension. The extension provides a bundle of [features](#features) to make ros2 development easier.
 
-## Setup
+## Development Setup
 
-The extension requires the `roslaunch-analyze-server` to be running. You can install it using the following command:
-
-```bash
-pip install git+https://github.com/roslaunch-analyzer/roslaunch-analyze-server.git
+Clone the repository along with the submodules
 ```
-
-or
-
-```bash
-pipx install git+https://github.com/roslaunch-analyzer/roslaunch-analyze-server.git
+git clone --recurse-submodules https://github.com/roslaunch-analyzer/vscode-roslaunch.git
 ```
+Build the extension and its parts using the following commands.
+```
+npm run build:lsp-server            # build server
+npm run build:webview               # build webview
+```
+To test the extension, if you have not already, open the `vscode-roslaunch` folder as workspace in vscode. Then run the extension through the vscode debugger (```Ctrl+Shift+D```).
 
 ## Features
 
