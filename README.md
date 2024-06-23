@@ -21,29 +21,53 @@ To test the extension, if you have not already, open the `vscode-roslaunch` fold
 ### Ros2 XML launch file features
 1) Launch Tree Visualization
 2) Auto-Completion
-<div style="text-align: center;">
-  <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/ae36d4df-b40d-4b99-a15e-5a152c34633c" alt="image" width="500"/>
-</div>
-<div style="text-align: center;">
-  <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/44ee5de3-436c-47bb-8925-0c1bbb9939ec" alt="image" width="500"/>
-</div>
-<div style="text-align: center;">
+
+<p align="center">
+  <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/90f8a296-2f11-4fca-be1b-6a304f83dfa6" alt="image" width="500"/>
+</p>
+
+<p align="center">
+  <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/03b13120-8a5d-4685-a88a-1bd1b516ca1b" alt="image" width="500"/>
+</p>
+
+<p align="center">
   <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/e75f24e6-114e-41a6-ab18-cc92e3938fbe" alt="image" width="500"/>
-</div>
-<div style="text-align: center;">
+</p>
+
+
+<p align="center">
   <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/8c5cbf8e-65a2-4d0f-9178-51f1a5de7040" alt="image" width="500"/>
-</div>
+</p>
 
 4) Go-to-Definition
 
-5) Hover Description
-<div style="text-align: center;">
-  <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/d4e1ced4-66df-4495-91d4-2607954227c3" alt="image" width="500"/>
-</div>
 
-<div style="text-align: center;">
+<p align="center">
+  <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/60ab5a6b-55cd-4f92-82f3-439436f545ae" alt="image" width="500"/>
+</p>
+
+
+<p align="center">
+  <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/22575f64-5691-4786-ba01-2d200f32abb9" alt="image" width="500"/>
+</p>
+
+
+<p align="center">
+  <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/debd1ea2-d700-47db-9290-8e97d9cb4bb8" alt="image" width="500"/>
+</p>
+
+
+5) Hover Description
+
+
+<p align="center">
+  <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/d4e1ced4-66df-4495-91d4-2607954227c3" alt="image" width="500"/>
+</p>
+
+
+<p align="center">
   <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/d22ac8c8-ff5e-456e-ab27-eccab4e631c7" alt="image" width="500"/>
-</div>
+</p>
 
 
 
