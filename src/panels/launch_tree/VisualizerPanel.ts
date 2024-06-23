@@ -1,6 +1,6 @@
 import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn,commands} from "vscode";
-import { getUri } from "../utilities/getUri";
-import { getNonce } from "../utilities/getNonce";
+import { getUri } from "./utilities/getUri";
+import { getNonce } from "./utilities/getNonce";
 
 /**
  * This class manages the state and behavior of Visualizer webview panels.
@@ -70,7 +70,7 @@ export class VisualizerPanel {
           // Enable JavaScript in the webview
           enableScripts: true,
           // Restrict the webview to only load resources from the `out` and `webview-ui/build` directories
-          localResourceRoots: [Uri.joinPath(extensionUri, "out"), Uri.joinPath(extensionUri, "webview-ui/build")],
+          localResourceRoots: [Uri.joinPath(extensionUri, "out"), Uri.joinPath(extensionUri, "webviews/launch-tree-ui/build")],
           enableFindWidget: true,
           retainContextWhenHidden: true
         }
@@ -122,20 +122,21 @@ export class VisualizerPanel {
 private _getWebviewContent(webview: Webview, extensionUri: Uri, jsonResponse: any) {
   // Paths to CSS and JS files
   const stylesUri = getUri(webview, extensionUri, [
-    "webview-ui",
+    "webviews",
+    "launch-tree-ui",
     "build",
     "static",
     "css",
     "main.css",
   ]);
   const scriptUri = getUri(webview, extensionUri, [
-    "webview-ui",
+    "webviews",
+    "launch-tree-ui",
     "build",
     "static",
     "js",
     "main.js",
   ]);
-
   const nonce = getNonce();
   const json_string = JSON.stringify(jsonResponse).replace(/'/g, "\\'").replace(/"/g, '\\"');
   return /*html*/ `

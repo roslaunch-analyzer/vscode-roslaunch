@@ -8,8 +8,9 @@ import {
 } from 'vscode-languageclient/node';
 import * as net from 'net';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
-import { VisualizerPanel } from "./panels/VisualizerPanel";
-import { getWebviewContent, LaunchFileParameters, getChangedParameters } from "./panels/ParameterChoice";
+import { VisualizerPanel } from "./panels/launch_tree/VisualizerPanel";
+import { getWebviewContent, LaunchFileParameters, getChangedParameters } from "./panels/launch_tree/ParameterChoice";
+
 let proc: ChildProcessWithoutNullStreams;
 let languageClient: LanguageClient | undefined = undefined;
 let parameterCache: Map<string, [string, string][]> = new Map();
@@ -23,7 +24,8 @@ export async function activate(context: vscode.ExtensionContext) {
         return;
     }
     let env = rosExtension.exports.getEnv();
-
+    console.log("ENVS")
+    console.log(env)
     // Load parameterCache from local storage
     const storedCache = context.workspaceState.get<string>('parameterCache');
     if (storedCache) {
@@ -33,13 +35,22 @@ export async function activate(context: vscode.ExtensionContext) {
         console.log("No parameter cache found in local storage.");
     }
 
+    // Find an available port
+    const getPort = (await import('get-port')).default;
+    const portNumbers = (await import('get-port')).portNumbers;
+    const port = await getPort({port: portNumbers(8100, 9000)});
     const connectionInfo = {
-        port: 8080,
+        port: port,
         host: "localhost"
     };
     
-    proc = spawn("roslaunch-language-server", ["--port", "8080"], {
-        env: env
+    console.log(context.extensionPath + '/language_server')
+    const command = `poetry run roslaunch-language-server --port ${port}`;
+
+    proc = spawn(command, {
+        shell: true,
+        env: env,
+        cwd: context.extensionPath + '/language_server'
     });
     
     proc.stdout.on("data", (data) => {
@@ -51,7 +62,14 @@ export async function activate(context: vscode.ExtensionContext) {
     proc.on("close", (code) => {
         console.log(`child process exited with code ${code}`);
     });
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for 2 seconds to ensure the server has time to start
+    proc.on("error", (err) => {
+        console.error(`Failed to spawn process: ${err.message}`);
+    });
+    proc.on("spawn", () => {
+        console.log("Process spawned successfully.");
+    });
+    
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 2 seconds to ensure the server has time to start
 
     let serverOptions = () => {
         return new Promise<StreamInfo>((resolve, reject) => {
@@ -149,6 +167,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             };
                             console.log("Updated parameters:", sendParams);
                             client.sendRequest("parse_launch_file", sendParams).then((treeJson) => {
+                                console.log("Tree: ",treeJson);
                                 panel.dispose();
                                 VisualizerPanel.render(context.extensionUri, vscode.ViewColumn.Two, treeJson);
                             }).catch((error) => {

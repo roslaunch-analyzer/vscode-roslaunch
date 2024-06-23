@@ -34,6 +34,8 @@
     }
   },
   "scripts": {
+    "build:webview": "cd webviews/launch-tree-ui && npm install && npm run build",
+    "build:lsp-server": "cd language_server && poetry install",
     "vscode:prepublish": "npm run package",
     "compile": "webpack",
     "watch": "webpack --watch",
@@ -61,6 +63,7 @@
   },
   "dependencies": {
     "axios": "^1.6.8",
+    "get-port": "^7.1.0",
     "vscode-languageclient": "^9.0.1"
   },
   "extensionDependencies": [
