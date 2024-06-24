@@ -131,11 +131,11 @@ function App() {
             ),
             style: {
               color: (rowInfo.node as ExtendedNodeData).isSelected ? 'red' : 'grey',
-              border:'1px solid grey',
+              border: '1px solid grey',
               margin: '2px',
               borderRadius: '8px',
             },
-            className: (rowInfo.node as ExtendedNodeData).type === 'Node' ? 'reddish-node': 'grey-node',
+            className: (rowInfo.node as ExtendedNodeData).type === 'Node' ? 'reddish-node' : 'grey-node',
             canDrag: false
           })}
           style={{ marginLeft: 3, fontSize: 12 }}

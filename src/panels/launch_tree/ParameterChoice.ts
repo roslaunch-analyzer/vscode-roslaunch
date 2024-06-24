@@ -1,16 +1,19 @@
-export interface LaunchFileParameters {
-    [key: string]: {
-        default: string;
-        description: string;
-    };
+export interface LaunchFileParameter {
+    name: string;
+    description: string;
+    default_value: string;
+    conditionally_included: boolean;
 }
 
-export function getChangedParameters(original: LaunchFileParameters, updated: any): Array<[string,string]> {
-    const changedParameters: Array<[string,string]> = [];
+export type LaunchFileParameters = LaunchFileParameter[];
 
-    for (const key in original) {
-        if (original[key].default !== updated[key]) {
-            changedParameters.push([key,updated[key]]);
+
+export function getChangedParameters(original: LaunchFileParameters, updated: any): Array<[string, string]> {
+    const changedParameters: Array<[string, string]> = [];
+
+    for (const param of original) {
+        if (param.default_value !== updated[param.name]) {
+            changedParameters.push([param.name, updated[param.name]]);
         }
     }
 
@@ -19,11 +22,11 @@ export function getChangedParameters(original: LaunchFileParameters, updated: an
 
 // webviewContent.js
 export function getWebviewContent(parameters: LaunchFileParameters) {
-    const rows = Object.entries(parameters).map(([key, { default: defaultValue, description }]) => `
+    const rows = parameters.map(({ name, default_value, description }) => `
         <tr>
-            <td>${key}</td>
+            <td>${name}</td>
             <td>
-                <input type="text" id="${key}" value="${defaultValue}" placeholder="Default: ${defaultValue}" />
+                <input type="text" id="${name}" value=${default_value} placeholder="Default: ${default_value}" />
                 <br>
                 <small>${description}</small>
             </td>

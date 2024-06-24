@@ -1,3 +1,0 @@
-[submodule "language_server"]
-	path = language_server
-	url =  https://github.com/roslaunch-analyzer/roslaunch-language-server.git

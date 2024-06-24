@@ -1,4 +1,4 @@
-import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn,commands} from "vscode";
+import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn, commands } from "vscode";
 import { getUri } from "./utilities/getUri";
 import { getNonce } from "./utilities/getNonce";
 
@@ -16,10 +16,10 @@ import { getNonce } from "./utilities/getNonce";
 function openFile(fileUri: string) {
   // Correctly parse the URI
   if (fileUri.startsWith('/file:///')) {
-      fileUri = fileUri.substring(8); // Remove 'file:///' to get the correct path
+    fileUri = fileUri.substring(8); // Remove 'file:///' to get the correct path
   }
   const uri = Uri.file(fileUri);
-  commands.executeCommand('vscode.open', uri,ViewColumn.One);
+  commands.executeCommand('vscode.open', uri, ViewColumn.One);
 }
 
 export class VisualizerPanel {
@@ -33,14 +33,14 @@ export class VisualizerPanel {
    * @param panel A reference to the webview panel
    * @param extensionUri The URI of the directory containing the extension
    */
-  private constructor(panel: WebviewPanel, extensionUri: Uri, jsonResponse: any){
+  private constructor(panel: WebviewPanel, extensionUri: Uri, jsonResponse: any) {
     this._panel = panel;
     // Set an event listener to listen for when the panel is disposed (i.e. when the user closes
     // the panel or when the panel is closed programmatically)
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
     // Set the HTML content for the webview panel
-    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri,jsonResponse);
+    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, jsonResponse);
 
     // Set an event listener to listen for messages passed from the webview context
     this._setWebviewMessageListener(this._panel.webview);
@@ -52,7 +52,7 @@ export class VisualizerPanel {
    *
    * @param extensionUri The URI of the directory containing the extension.
    */
-  public static render(extensionUri: Uri,paneltype: ViewColumn,jsonResponse: any) {
+  public static render(extensionUri: Uri, paneltype: ViewColumn, jsonResponse: any) {
     if (VisualizerPanel.currentPanel) {
       // If the webview panel already exists reveal it
       VisualizerPanel.currentPanel._panel.reveal(paneltype);
@@ -76,17 +76,17 @@ export class VisualizerPanel {
         }
       );
       panel.webview.onDidReceiveMessage(
-          message => {
-              switch (message.command) {
-                  case 'openFile':
-                      const uri = Uri.parse(message.uri);
-                      openFile(uri.path)
-                      break;
-              }
-          },
-          undefined,
-      );  
-      VisualizerPanel.currentPanel = new VisualizerPanel(panel, extensionUri,jsonResponse);
+        message => {
+          switch (message.command) {
+            case 'openFile':
+              const uri = Uri.parse(message.uri);
+              openFile(uri.path);
+              break;
+          }
+        },
+        undefined,
+      );
+      VisualizerPanel.currentPanel = new VisualizerPanel(panel, extensionUri, jsonResponse);
     }
   }
 
@@ -119,27 +119,27 @@ export class VisualizerPanel {
    * @returns A template string literal containing the HTML that should be
    * rendered within the webview panel
    */
-private _getWebviewContent(webview: Webview, extensionUri: Uri, jsonResponse: any) {
-  // Paths to CSS and JS files
-  const stylesUri = getUri(webview, extensionUri, [
-    "webviews",
-    "launch-tree-ui",
-    "build",
-    "static",
-    "css",
-    "main.css",
-  ]);
-  const scriptUri = getUri(webview, extensionUri, [
-    "webviews",
-    "launch-tree-ui",
-    "build",
-    "static",
-    "js",
-    "main.js",
-  ]);
-  const nonce = getNonce();
-  const json_string = JSON.stringify(jsonResponse).replace(/'/g, "\\'").replace(/"/g, '\\"');
-  return /*html*/ `
+  private _getWebviewContent(webview: Webview, extensionUri: Uri, jsonResponse: any) {
+    // Paths to CSS and JS files
+    const stylesUri = getUri(webview, extensionUri, [
+      "webviews",
+      "launch-tree-ui",
+      "build",
+      "static",
+      "css",
+      "main.css",
+    ]);
+    const scriptUri = getUri(webview, extensionUri, [
+      "webviews",
+      "launch-tree-ui",
+      "build",
+      "static",
+      "js",
+      "main.js",
+    ]);
+    const nonce = getNonce();
+    const json_string = JSON.stringify(jsonResponse).replace(/'/g, "\\'").replace(/"/g, '\\"');
+    return /*html*/ `
     <!DOCTYPE html>
     <html lang="en">
       <head>
@@ -161,7 +161,7 @@ private _getWebviewContent(webview: Webview, extensionUri: Uri, jsonResponse: an
       </body>
     </html>
   `;
-}
+  }
 
 
   /**

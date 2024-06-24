@@ -24,8 +24,8 @@ export async function activate(context: vscode.ExtensionContext) {
         return;
     }
     let env = rosExtension.exports.getEnv();
-    console.log("ENVS")
-    console.log(env)
+    console.log("ENVS");
+    console.log(env);
     // Load parameterCache from local storage
     const storedCache = context.workspaceState.get<string>('parameterCache');
     if (storedCache) {
@@ -38,21 +38,16 @@ export async function activate(context: vscode.ExtensionContext) {
     // Find an available port
     const getPort = (await import('get-port')).default;
     const portNumbers = (await import('get-port')).portNumbers;
-    const port = await getPort({port: portNumbers(8100, 9000)});
+    const port = await getPort({ port: portNumbers(8100, 9000) });
     const connectionInfo = {
         port: port,
         host: "localhost"
     };
-    
-    console.log(context.extensionPath + '/language_server')
-    const command = `poetry run roslaunch-language-server --port ${port}`;
 
-    proc = spawn(command, {
-        shell: true,
-        env: env,
-        cwd: context.extensionPath + '/language_server'
+    proc = spawn("roslaunch-language-server", ["--port", String(port)], {
+        env: env
     });
-    
+
     proc.stdout.on("data", (data) => {
         console.log(`stdout: ${data}`);
     });
@@ -68,7 +63,7 @@ export async function activate(context: vscode.ExtensionContext) {
     proc.on("spawn", () => {
         console.log("Process spawned successfully.");
     });
-    
+
     await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 2 seconds to ensure the server has time to start
 
     let serverOptions = () => {
@@ -116,12 +111,12 @@ export async function activate(context: vscode.ExtensionContext) {
     const openInRosLaunchManager = vscode.commands.registerCommand('vscode-roslaunch.openInRosLaunchManager', async (uri: vscode.Uri) => {
         const document = await vscode.workspace.openTextDocument(uri);
         await vscode.window.showTextDocument(document, { viewColumn: vscode.ViewColumn.One });
-        
+
         const params = { filepath: uri.path };
         await client.sendRequest<LaunchFileParameters>("get_launch_file_parameters", params).then((parameters) => {
             console.log("Launch file analysis:", parameters);
-            
-            const showParams = JSON.parse(JSON.stringify(parameters))
+
+            const showParams = JSON.parse(JSON.stringify(parameters));
             // Apply cached parameters if available
             const cachedParameters = parameterCache.get(uri.path);
             if (cachedParameters) {
@@ -131,7 +126,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                 });
             }
-            
+
             const panel = vscode.window.createWebviewPanel(
                 'editLaunchParameters',
                 'Edit Launch Parameters',
@@ -141,9 +136,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     retainContextWhenHidden: true
                 }
             );
-        
+
             panel.webview.html = getWebviewContent(showParams);
-        
+
             panel.webview.onDidReceiveMessage(
                 message => {
                     switch (message.command) {
@@ -167,7 +162,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             };
                             console.log("Updated parameters:", sendParams);
                             client.sendRequest("parse_launch_file", sendParams).then((treeJson) => {
-                                console.log("Tree: ",treeJson);
+                                console.log("Tree: ", treeJson);
                                 panel.dispose();
                                 VisualizerPanel.render(context.extensionUri, vscode.ViewColumn.Two, treeJson);
                             }).catch((error) => {
@@ -182,7 +177,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 },
                 undefined,
                 context.subscriptions
-            );            
+            );
         }).catch((error) => {
             console.error("Error analyzing launch file:", error);
         });
