@@ -16,10 +16,6 @@
   "contributes": {
     "commands": [
       {
-        "command": "vscode-roslaunch.helloWorld",
-        "title": "ROS Launch Analyzer : Preview Hello World!!"
-      },
-      {
         "command": "vscode-roslaunch.openInRosLaunchManager",
         "title": "Preview in ROS Launch Manager"
       }
@@ -35,7 +31,6 @@
   },
   "scripts": {
     "build:webview": "cd webviews/launch-tree-ui && npm install && npm run build",
-    "build:lsp-server": "cd language_server && poetry install",
     "vscode:prepublish": "npm run package",
     "compile": "webpack",
     "watch": "webpack --watch",
