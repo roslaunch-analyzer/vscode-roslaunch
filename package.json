@@ -69,5 +69,6 @@
     "type": "git",
     "url": "https://github.com/roslaunch-analyzer/vscode-roslaunch.git"
   },
-  "publisher": "ROSExtensionDevelopers"
+  "publisher": "ROSExtensionDevelopers",
+  "icon": "./icon.webp"
 }
