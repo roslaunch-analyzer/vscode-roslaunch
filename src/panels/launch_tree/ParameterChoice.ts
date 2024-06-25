@@ -7,7 +7,6 @@ export interface LaunchFileParameter {
 
 export type LaunchFileParameters = LaunchFileParameter[];
 
-
 export function getChangedParameters(original: LaunchFileParameters, updated: any): Array<[string, string]> {
     const changedParameters: Array<[string, string]> = [];
 

@@ -7,6 +7,14 @@ main {
   
 }
 
+/* App.css */
+
+.rst__expandButton,
+.rst__collapseButton {
+  pointer-events: none;
+}
+
+
 .tree-container {
   height: 11600px; /* Adjust based on your layout */
   width: 2048px;

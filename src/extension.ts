@@ -10,7 +10,7 @@ import * as net from 'net';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { exec } from 'child_process';
 import { VisualizerPanel } from "./panels/launch_tree/VisualizerPanel";
-import { getWebviewContent, LaunchFileParameters, getChangedParameters } from "./panels/launch_tree/ParameterChoice";
+import { getWebviewContent, LaunchFileParameters, LaunchFileParameter,getChangedParameters } from "./panels/launch_tree/ParameterChoice";
 
 let proc: ChildProcessWithoutNullStreams;
 let languageClient: LanguageClient | undefined = undefined;
@@ -25,8 +25,6 @@ export async function activate(context: vscode.ExtensionContext) {
         return;
     }
     let env = rosExtension.exports.getEnv();
-    console.log("ENVS");
-    console.log(env);
     // Load parameterCache from local storage
     const storedCache = context.workspaceState.get<string>('parameterCache');
     if (storedCache) {
@@ -138,8 +136,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     const cachedParameters = parameterCache.get(uri.path);
                     if (cachedParameters) {
                         cachedParameters.forEach(([key, val]) => {
-                            if (showParams[key]) {
-                                showParams[key].default = val;
+                            const param = showParams.find((p: LaunchFileParameter) => p.name === key);
+                            if (param) {
+                                param.default_value = val;
                             }
                         });
                     }
@@ -162,12 +161,11 @@ export async function activate(context: vscode.ExtensionContext) {
                                 case 'updateParameters':
                                     const updatedParameters = message.parameters;
                                     const upd_result = getChangedParameters(parameters, updatedParameters);
-
                                     parameterCache.set(uri.path, upd_result);
 
                                     // Save parameterCache to local storage
                                     context.workspaceState.update('parameterCache', JSON.stringify(Array.from(parameterCache.entries()))).then(() => {
-                                        console.log("Parameter cache saved to local storage.");
+                                        console.log("Parameter cache saved to local storage.",parameterCache);
                                     }, (error) => {
                                         console.error("Error saving parameter cache to local storage:", error);
                                     });

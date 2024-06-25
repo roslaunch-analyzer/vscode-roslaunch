@@ -109,20 +109,29 @@ function App() {
   return (
     <main>
       <h2>Ros2 Components</h2>
-      <label>
+      {/* <label>
         <input
           type="checkbox"
           checked={showNodes}
           onChange={(e) => setShowNodes(e.target.checked)}
+          disabled={selectedNode !== null}
         />
         Show Nodes
-      </label>
+      </label> */}
       <div className="tree-container">
         <SortableTree
           treeData={treeData}
           onChange={setTreeData}
           generateNodeProps={(rowInfo) => ({
-            onClick: (e: React.MouseEvent) => handleNodeClick(rowInfo),
+            onClick: (e: React.MouseEvent) => {
+              if(e.ctrlKey){
+                handleRightClick(e, rowInfo.node as ExtendedNodeData)
+              
+              }
+              else if (!selectedNode || selectedNode === rowInfo.node) {
+                handleNodeClick(rowInfo);
+              }
+            },
             onContextMenu: (e: React.MouseEvent) => handleRightClick(e, rowInfo.node as ExtendedNodeData),
             title: (
               <span ref={rowInfo.node === selectedNode ? selectedNodeRef : null} tabIndex={-1}>
