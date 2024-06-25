@@ -24,7 +24,7 @@ This is the code repository for the vscode-roslaunch extension. The extension pr
 Clone the repository
 
 ```bash
-git clonehttps://github.com/roslaunch-analyzer/vscode-roslaunch.git
+git clone https://github.com/roslaunch-analyzer/vscode-roslaunch.git
 ```
 
 Build the extension and its parts using the following commands.
