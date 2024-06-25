@@ -24,7 +24,7 @@ This is the code repository for the vscode-roslaunch extension. The extension pr
 Clone the repository
 
 ```bash
-git clonehttps://github.com/roslaunch-analyzer/vscode-roslaunch.git
+git clone https://github.com/roslaunch-analyzer/vscode-roslaunch.git
 ```
 
 Build the extension and its parts using the following commands.
@@ -39,7 +39,7 @@ To test the extension, if you have not already, open the `vscode-roslaunch` fold
 
 ### Ros2 XML launch file features
 
-1. [Launch Tree Visualization](https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/4a8ce89f-b8ce-4728-8f31-78288425662b)
+1. [Launch Tree Visualization]()
 2. Auto-Completion
 
 <p align="center">
