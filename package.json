@@ -2,7 +2,7 @@
   "name": "vscode-roslaunch",
   "displayName": "vscode-roslaunch",
   "description": "VSCode Extension for ros launch file!",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.88.0"
   },
