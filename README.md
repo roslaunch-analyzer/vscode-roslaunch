@@ -3,6 +3,8 @@
 
 This is the code repository for the vscode-roslaunch extension. The extension provides a bundle of [features](#features) to make ros2 development easier.
 
+This extension is published on the [marketplace](https://marketplace.visualstudio.com/items?itemName=ROSExtensionDevelopers.vscode-roslaunch).
+
 ## Setup
 
 1. Install Language Server with the following command.
@@ -39,7 +41,10 @@ To test the extension, if you have not already, open the `vscode-roslaunch` fold
 
 ### Ros2 XML launch file features
 
-1. [Launch Tree Visualization]()
+1. Launch Tree Visualization
+
+    See this [YouTube video](https://www.youtube.com/watch?v=jS8w5gZbL3E)
+
 2. Auto-Completion
 
 <p align="center">
@@ -58,7 +63,7 @@ To test the extension, if you have not already, open the `vscode-roslaunch` fold
   <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/8c5cbf8e-65a2-4d0f-9178-51f1a5de7040" alt="image" width="500"/>
 </p>
 
-4. Go-to-Definition
+3. Go-to-Definition
 
 <p align="center">
   <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/60ab5a6b-55cd-4f92-82f3-439436f545ae" alt="image" width="500"/>
@@ -72,7 +77,7 @@ To test the extension, if you have not already, open the `vscode-roslaunch` fold
   <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/debd1ea2-d700-47db-9290-8e97d9cb4bb8" alt="image" width="500"/>
 </p>
 
-5. Hover Description
+4. Hover Description
 
 <p align="center">
   <img src="https://github.com/roslaunch-analyzer/vscode-roslaunch/assets/38401989/d4e1ced4-66df-4495-91d4-2607954227c3" alt="image" width="500"/>
